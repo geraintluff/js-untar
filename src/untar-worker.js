@@ -57,6 +57,8 @@ if (typeof self !== "undefined") {
 // Source: https://gist.github.com/pascaldekloe/62546103a1576803dade9269ccf76330
 // Unmarshals an Uint8Array to string.
 function decodeUTF8(bytes) {
+    // use built-in one if possible
+    if (typeof TextDecoder === 'function') return new TextDecoder().decode(bytes);
     var s = '';
     var i = 0;
     while (i < bytes.length) {
@@ -106,7 +108,7 @@ PaxHeader.parse = function(buffer) {
         // Decode bytes up to the first space character; that is the total field length
         var fieldLength = parseInt(decodeUTF8(bytes.subarray(0, bytes.indexOf(0x20))));
         var fieldText = decodeUTF8(bytes.subarray(0, fieldLength));
-        var fieldMatch = fieldText.match(/^\d+ ([^=]+)=(.*)\n$/);
+        var fieldMatch = fieldText.match(/^\d+ ([^=]+)=((.|\r|\n)*)\n$/);
 
         if (fieldMatch === null) {
             throw new Error("Invalid PAX header data format.");
